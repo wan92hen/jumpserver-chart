@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.18.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: guacamole
+  name: guacamole
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: guacamole
+    spec:
+      containers:
+      - env:
+        - name: BOOTSTRAP_TOKEN
+        - name: GUACAMOLE_HOME
+          value: /config/guacamole
+        - name: GUACAMOLE_LOG_LEVEL
+          value: ERROR
+        - name: JUMPSERVER_KEY_DIR
+          value: /config/guacamole/keys
+        - name: JUMPSERVER_SERVER
+          value: http://core:8080
+        image: 'wojiushixiaobai/jms_guacamole:1.5.4'
+        name: jms-guacamole
+        ports:
+        - containerPort: 8081
+        resources: {}
+        tty: true
+        volumeMounts:
+        - mountPath: /config/guacamole/keys
+          name: gua-key
+      restartPolicy: Always
+      volumes:
+      - name: gua-key
+        persistentVolumeClaim:
+          claimName: gua-key
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.18.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: guacamole
+  name: guacamole
+spec:
+  ports:
+  - name: "8081"
+    port: 8081
+    targetPort: 8081
+  selector:
+    io.kompose.service: guacamole
+status:
+  loadBalancer: {}

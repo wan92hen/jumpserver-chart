@@ -1,0 +1,61 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.18.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx
+    spec:
+      containers:
+      - image: 'wojiushixiaobai/jms_nginx:1.5.4'
+        name: jms-nginx
+        ports:
+        - containerPort: 80
+        resources: {}
+        tty: true
+        volumeMounts:
+        - mountPath: /opt/jumpserver/data/static
+          name: static
+        - mountPath: /opt/jumpserver/data/media
+          name: media
+      restartPolicy: Always
+      volumes:
+      - name: static
+        persistentVolumeClaim:
+          claimName: static
+      - name: media
+        persistentVolumeClaim:
+          claimName: media
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f ../docker-compose.yaml
+    kompose.version: 1.18.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: nginx
+  name: nginx
+spec:
+  ports:
+  - name: "80"
+    port: 80
+    targetPort: 80
+  selector:
+    io.kompose.service: nginx
+status:
+  loadBalancer: {}

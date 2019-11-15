@@ -1,0 +1,7 @@
+apiVersion: "v1"
+name: "jumpserver"
+version: "0.1.0"
+keywords:
+  - jumpserver
+  - fit2cloud
+home: https://www.jumpserver.org/
